@@ -1,9 +1,12 @@
 #pragma once
 
 #include <memory>
+#include <vector>
+#include <string>
 #include <SDL.h>
 
 class Player;
+class GameObject;
 
 class Game
 {
@@ -34,12 +37,15 @@ private:
 	SDL_Renderer* m_pRenderer;
 	static Game* s_pInstance;
 
-	std::unique_ptr<Player> player;
+	std::unique_ptr<Player> m_player;
+	std::vector<GameObject*>  m_gameObjs;
 
 	Game();
 	~Game();
 
 	Game(const Game&);
 	Game& operator=(const Game&);
+
+	void LoadPolygonsFromFile(const std::string fileName);
 };
 typedef Game TheGame;

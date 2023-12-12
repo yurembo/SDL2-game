@@ -9,13 +9,12 @@ public:
 	Player();
 	virtual ~Player() {}
 
-	virtual void draw(SDL_Renderer* renderer) override;
-	virtual void update();
-	virtual void clean();
+	virtual void draw(SDL_Renderer* m_pRenderer) override;
+	void update();
 
-	virtual void collision();
+	virtual void collision() override;
 
-	virtual std::string type() { return "Player"; }
+	virtual std::string type() override; 
 
 	// handle any input from the keyboard or joystick
 	void handleInput();

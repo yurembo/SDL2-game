@@ -13,13 +13,7 @@ public:
 	virtual ~GameObject() {}
 
 	// draw the object
-	virtual void draw(SDL_Renderer* renderer) = 0;
-
-	// do update stuff
-	virtual void update() = 0;
-
-	// remove anything that needs to be deleted
-	virtual void clean() = 0;
+	virtual void draw(SDL_Renderer* m_pRenderer) = 0;
 
 	// object has collided, handle accordingly
 	virtual void collision() = 0;

@@ -25,7 +25,6 @@ public:
 	// joystick events
 	int getAxisX(int joy, int stick) const;
 	int getAxisY(int joy, int stick) const;
-	bool getButtonState(int joy, int buttonNumber) const;
 
 	// init joysticks
 	void initialiseJoysticks();
@@ -46,9 +45,8 @@ private:
 	// joystick specific
 	std::vector<std::pair<Vector2D*, Vector2D*>> m_joystickValues;
 	std::vector<SDL_Joystick*> m_joysticks;
-	std::vector<std::vector<bool>> m_buttonStates;
 	bool m_bJoysticksInitialised;
-	static const int m_joystickDeadZone = 10000;
+	const int m_joystickDeadZone = 10000;
 
 	// handle keyboard events
 	void onKeyDown();
@@ -56,7 +54,5 @@ private:
 
 	// handle joysticks events
 	void onJoystickAxisMove(SDL_Event& event);
-	void onJoystickButtonDown(SDL_Event& event);
-	void onJoystickButtonUp(SDL_Event& event);
 };
 typedef InputHandler TheInputHandler;

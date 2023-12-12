@@ -15,9 +15,9 @@ Player::Player()
 	m_pos.m_y = 150;
 }
 
-void Player::draw(SDL_Renderer* renderer)
+void Player::draw(SDL_Renderer* m_pRenderer)
 {
-	filledCircleRGBA(renderer, m_pos.getX(), m_pos.getY(), PLAYER_RADIUS, 255, 255, 0, 255);
+	filledCircleRGBA(m_pRenderer, m_pos.getX(), m_pos.getY(), PLAYER_RADIUS, 255, 255, 0, 255);
 }
 
 void Player::update()
@@ -25,14 +25,14 @@ void Player::update()
 	handleInput();
 }
 
-void Player::clean()
+void Player::collision()
 {
 
 }
 
-void Player::collision()
+inline std::string Player::type()
 {
-
+	return "Player";
 }
 
 void Player::handleInput()
@@ -76,5 +76,21 @@ void Player::handleInput()
 			m_pos.m_x -= INC_STEP;
 		} 
 		else m_pos.m_x = BORDER_WIDTH + PLAYER_RADIUS;
+	}
+	if (TheInputHandler::Instance()->getAxisX(0, 1) > 0)
+    {
+		m_pos.m_x += INC_STEP;
+    }
+	if (TheInputHandler::Instance()->getAxisX(0, 1) < 0)
+	{
+		m_pos.m_x -= INC_STEP;
+	}
+	if (TheInputHandler::Instance()->getAxisY(0, 1) > 0)
+	{
+		m_pos.m_y += INC_STEP;
+	}
+	if (TheInputHandler::Instance()->getAxisY(0, 1) < 0)
+	{
+		m_pos.m_y -= INC_STEP;
 	}
 }
