@@ -7,8 +7,6 @@
 #include "GameObject.h"
 #include "Polygon.h"
 
-const std::string FILENAME = "coords.txt";
-
 Game* Game::s_pInstance = 0;
 
 Game::Game() : m_pWindow(0), m_pRenderer(0), m_bRunning(false)
@@ -80,20 +78,9 @@ void Game::draw()
 {
 	SDL_SetRenderDrawColor(m_pRenderer, 200, 200, 255, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(m_pRenderer); // clear the renderer to	the draw color
-
-	// draw perimeter
-	boxRGBA(m_pRenderer, 0, 0, SCREEN_WIDTH, BORDER_WIDTH,
-		0,0,255,255);
-	boxRGBA(m_pRenderer, 0, 0, BORDER_WIDTH, SCREEN_HEIGHT,
-		0, 0, 255, 255);
-	boxRGBA(m_pRenderer, 0, SCREEN_HEIGHT - BORDER_WIDTH, SCREEN_WIDTH, SCREEN_HEIGHT,
-		0, 0, 255, 255);
-	boxRGBA(m_pRenderer, SCREEN_WIDTH - BORDER_WIDTH, 0, SCREEN_WIDTH, SCREEN_HEIGHT,
-		0, 0, 255, 255);
-
-	stringRGBA(m_pRenderer, TITLE_X, TITLE_Y, "Use arrows to move a circle, use Esc to exit.", 255, 255, 255, 255);
 	
-	for (std::vector<GameObject*>::size_type i = 0; i != m_gameObjs.size(); ++i)
+	//SDL_SetRenderDrawColor(m_pRenderer, 0, 0, 255, SDL_ALPHA_OPAQUE);
+	for (std::vector<GameObject*>::size_type i = 0; i < m_gameObjs.size(); ++i)
 	{
 		m_gameObjs[i]->draw(m_pRenderer);
 	}
@@ -102,6 +89,8 @@ void Game::draw()
 		m_player->update();
 		m_player->draw(m_pRenderer);
 	}
+
+	stringRGBA(m_pRenderer, TITLE_X, TITLE_Y, "Use arrows to move a circle, use Esc to exit.", 255, 255, 255, 255);
 	
 	SDL_RenderPresent(m_pRenderer); // flip to the screen
 }

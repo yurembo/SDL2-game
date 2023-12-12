@@ -1,21 +1,6 @@
 #include <SDL.h>
 #include <SDL2_gfxPrimitives.h>
 #include "Polygon.h"
-/*
-const std::vector< Sint16 > verts1 =
-{
-	{  400 },
-	{  200 },
-	{  600 },
-};
-
-const std::vector< Sint16 > verts2 =
-{
-	{  150 },
-	{  450 },
-	{  650 },
-};
-*/
 
 Polygon::Polygon(const std::vector<int> x_coords, const std::vector<int> y_coords)
 {
@@ -34,7 +19,7 @@ Polygon::~Polygon()
 
 void Polygon::draw(SDL_Renderer* m_pRenderer)
 {
-	filledPolygonRGBA(m_pRenderer, m_vertexX.data(), m_vertexY.data(), m_vertexX.size(), 255, 0, 255, 255);
+	filledPolygonRGBA(m_pRenderer, m_vertexX.data(), m_vertexY.data(), m_vertexX.size(), 0, 0, 255, 255);
 }
 
 void Polygon::collision()
