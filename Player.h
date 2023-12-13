@@ -7,7 +7,7 @@ class Player : public GameObject
 public:
 
 	Player();
-	virtual ~Player() {}
+	virtual ~Player();
 
 	virtual void draw(SDL_Renderer* m_pRenderer) override;
 	void update();
@@ -19,7 +19,10 @@ public:
 	// handle any input from the keyboard or joystick
 	void handleInput();
 
-private:
+	void setVelocity(const Vector2D vel);
 
+private:
+	// velocity
+	Vector2D m_vel;
 	
 };

@@ -7,6 +7,7 @@
 
 class Player;
 class GameObject;
+class Vector2D;
 
 class Game
 {
@@ -30,6 +31,8 @@ public:
 	// a function to access the private running variable
 	bool running() { return m_bRunning; }
 	void quit() { m_bRunning = false; }
+
+	void setPlayerVelocity(const Vector2D vec);
 
 private:
 	bool m_bRunning;

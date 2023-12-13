@@ -79,7 +79,6 @@ void Game::draw()
 	SDL_SetRenderDrawColor(m_pRenderer, 200, 200, 255, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(m_pRenderer); // clear the renderer to	the draw color
 	
-	//SDL_SetRenderDrawColor(m_pRenderer, 0, 0, 255, SDL_ALPHA_OPAQUE);
 	for (std::vector<GameObject*>::size_type i = 0; i < m_gameObjs.size(); ++i)
 	{
 		m_gameObjs[i]->draw(m_pRenderer);
@@ -103,6 +102,12 @@ void Game::clean()
 	SDL_DestroyWindow(m_pWindow);
 	SDL_DestroyRenderer(m_pRenderer);
 	SDL_Quit();
+}
+
+void Game::setPlayerVelocity(const Vector2D vec)
+{
+	if (m_player != nullptr)
+		m_player->setVelocity(vec);
 }
 
 void Game::handleEvents()

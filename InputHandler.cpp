@@ -2,19 +2,17 @@
 #include <SDL.h>
 #include "InputHandler.h"
 #include "Game.h"
+#include "Player.h"
 
 InputHandler* InputHandler::s_pInstance = 0;
 
-InputHandler::InputHandler() : m_keystates(0), m_bJoysticksInitialised(false)
+InputHandler::InputHandler() : m_bJoysticksInitialised(false)
 {
 
 }
 
 InputHandler::~InputHandler()
 {
-	// delete anything we created dynamically
-	//delete m_keystates;
-
 	// clear our arrays
 	m_joystickValues.clear();
 	m_joysticks.clear();
@@ -73,10 +71,12 @@ void InputHandler::update()
 			TheGame::Instance()->quit();
 			break;
 		case SDL_KEYDOWN:
-			onKeyDown();
+			if (event.key.repeat == 0)
+				onKeyDown(event);
 			break;
 		case SDL_KEYUP:
-			onKeyUp();
+			if (event.key.repeat == 0)
+				onKeyUp(event);
 			break;
 		case SDL_JOYAXISMOTION:
 			onJoystickAxisMove(event);
@@ -87,30 +87,57 @@ void InputHandler::update()
 	}
 }
 
-void InputHandler::onKeyDown()
+void InputHandler::onKeyDown(SDL_Event& e)
 {
-	m_keystates = SDL_GetKeyboardState(0);
-}
-
-void InputHandler::onKeyUp()
-{
-	m_keystates = SDL_GetKeyboardState(0);
-}
-
-bool InputHandler::isKeyDown(SDL_Scancode key) const
-{
-	if (m_keystates != 0)
+	if (e.key.keysym.sym == SDLK_ESCAPE)
 	{
-		if (m_keystates[key] == 1)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		TheGame::Instance()->quit();
+	}else
+ 	if (e.key.keysym.sym == SDLK_UP || e.key.keysym.sym == SDLK_w) 
+	{
+ 		Vector2D vel(0, -INC_STEP);
+ 		TheGame::Instance()->setPlayerVelocity(vel); 
+ 	}else
+	if (e.key.keysym.sym == SDLK_DOWN || e.key.keysym.sym == SDLK_s)
+	{
+		Vector2D vel(0, INC_STEP);
+		TheGame::Instance()->setPlayerVelocity(vel);
 	}
-	return false;
+	if (e.key.keysym.sym == SDLK_LEFT || e.key.keysym.sym == SDLK_a)
+	{
+		Vector2D vel(-INC_STEP, 0);
+		TheGame::Instance()->setPlayerVelocity(vel);
+	}else
+	if (e.key.keysym.sym == SDLK_RIGHT || e.key.keysym.sym == SDLK_d)
+	{
+		Vector2D vel(INC_STEP, 0);
+		TheGame::Instance()->setPlayerVelocity(vel);
+	}
+}
+
+void InputHandler::onKeyUp(SDL_Event& e)
+{
+	if (e.key.keysym.sym == SDLK_UP || e.key.keysym.sym == SDLK_w)
+	{
+		Vector2D vel(0, INC_STEP);
+		TheGame::Instance()->setPlayerVelocity(vel);
+	}else
+	if (e.key.keysym.sym == SDLK_DOWN || e.key.keysym.sym == SDLK_s)
+	{
+		Vector2D vel(0, -INC_STEP);
+		TheGame::Instance()->setPlayerVelocity(vel);
+	}
+	if (e.key.keysym.sym == SDLK_LEFT || e.key.keysym.sym == SDLK_a)
+	{
+		Vector2D vel(INC_STEP, 0);
+		TheGame::Instance()->setPlayerVelocity(vel);
+	}
+	else
+	if (e.key.keysym.sym == SDLK_RIGHT || e.key.keysym.sym == SDLK_d)
+	{
+		Vector2D vel(-INC_STEP, 0);
+		TheGame::Instance()->setPlayerVelocity(vel);
+	}
 }
 
 void InputHandler::onJoystickAxisMove(SDL_Event& event)

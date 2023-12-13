@@ -10,7 +10,11 @@ class GameObject
 public:
 
 	// base class needs virtual destructor
-	virtual ~GameObject() {}
+	virtual ~GameObject() 
+	{ 
+		m_pos.m_x = 0; 
+		m_pos.m_y = 0;
+	}
 
 	// draw the object
 	virtual void draw(SDL_Renderer* m_pRenderer) = 0;
@@ -31,6 +35,6 @@ protected:
 	{
 
 	}
-
+	// position
 	Vector2D m_pos;
 };
