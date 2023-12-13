@@ -11,7 +11,5 @@ static const int TITLE_Y = 10;
 
 static const std::string FILENAME = "coords.txt";
 
-// radius of the circle
-static const int PLAYER_RADIUS = 30;
 // speed
 static const int INC_STEP = 3;

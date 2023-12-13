@@ -79,12 +79,15 @@ void Game::draw()
 	SDL_SetRenderDrawColor(m_pRenderer, 200, 200, 255, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(m_pRenderer); // clear the renderer to	the draw color
 	
-	for (std::vector<GameObject*>::size_type i = 0; i < m_gameObjs.size(); ++i)
+	if (m_player) 
 	{
-		m_gameObjs[i]->draw(m_pRenderer);
-	}
-
-	if (m_player) {
+		for (std::vector<GameObject*>::size_type i = 0; i < m_gameObjs.size(); ++i)
+		{
+			m_gameObjs[i]->draw(m_pRenderer);
+			Polygon* poly = dynamic_cast<Polygon*>(m_gameObjs[i]);
+			if (m_player->checkCollision(poly->getCollider()))
+				std::cout << "collide";
+		}
 		m_player->update();
 		m_player->draw(m_pRenderer);
 	}
