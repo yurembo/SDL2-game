@@ -3,7 +3,7 @@
 #include <algorithm>
 #include "Polygon.h"
 
-Polygon::Polygon(const std::vector<int> x_coords, const std::vector<int> y_coords)
+Polygon::Polygon(const std::vector<int>& x_coords, const std::vector<int>& y_coords)
 {
 	for (auto iter = x_coords.begin(); iter != x_coords.end(); ++iter)
 		m_vertexX.push_back(*iter);
@@ -42,7 +42,17 @@ std::string Polygon::type()
 	return "Polygon";
 }
 
-SDL_Rect& Polygon::getCollider()
+SDL_Rect Polygon::getCollider() const
 {
 	return m_Collider;
+}
+
+std::vector<Sint16> Polygon::getVertexX() const
+{
+	return m_vertexX;
+}
+
+std::vector<Sint16> Polygon::getVertexY() const
+{
+	return m_vertexY;
 }

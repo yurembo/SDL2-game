@@ -77,7 +77,7 @@ bool Game::init(const char* title, int xpos, int ypos, int width,int height, boo
 void Game::draw()
 {
 	SDL_SetRenderDrawColor(m_pRenderer, 200, 200, 255, SDL_ALPHA_OPAQUE);
-	SDL_RenderClear(m_pRenderer); // clear the renderer to	the draw color
+	SDL_RenderClear(m_pRenderer); // clear the renderer to draw color
 	
 	if (m_player) 
 	{
@@ -85,8 +85,11 @@ void Game::draw()
 		{
 			m_gameObjs[i]->draw(m_pRenderer);
 			Polygon* poly = dynamic_cast<Polygon*>(m_gameObjs[i]);
-			if (m_player->checkCollision(poly->getCollider()))
+			if (m_player->checkCollision(poly->getVertexX(), poly->getVertexY()))
+			{
 				std::cout << "collide";
+				m_player->resolveCollision();
+			}
 		}
 		m_player->update();
 		m_player->draw(m_pRenderer);

@@ -2,6 +2,7 @@
 
 #include "GameObject.h"
 #include "Circle.h"
+#include "Polygon.h"
 
 class Player : public GameObject
 {
@@ -15,19 +16,17 @@ public:
 	void moveCollider();
 	virtual void draw(SDL_Renderer* m_pRenderer) override;
 	void update();
-	void collision();
+	void resolveCollision();
 	virtual std::string type() override; 
 	// handle any input from the keyboard or joystick
 	void handleInput();
 	void setVelocity(const Vector2D vel);
 
-	//Circle/Box collision detector
-	bool checkCollision(SDL_Rect& b);
-	__int32 distanceSquared(int x1, int y1, int x2, int y2);
+	bool checkCollision(const std::vector<Sint16>& m_vertexX, const std::vector<Sint16>& m_vertexY);
 	
 private:
 	// velocity
 	Vector2D m_vel;
-	//hidden object to check a collision
-	Circle m_Collider;
+	//hidden rectangle to check a collision
+	SDL_Rect m_Collider;
 };

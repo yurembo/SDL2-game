@@ -9,7 +9,6 @@ Player::Player() : m_vel(0,0)
 	m_pos.m_x = SCREEN_WIDTH / 2;
 	m_pos.m_y = SCREEN_HEIGHT / 2;
 
-	m_Collider.rad = PLAYER_RADIUS / 3;
 	moveCollider();
 }
 
@@ -17,11 +16,14 @@ Player::~Player()
 {
 	m_pos.m_x = 0;
 	m_pos.m_y = 0;
+
 	m_vel.m_x = 0;
 	m_vel.m_y = 0;
-	m_Collider.pos.m_x = 0;
-	m_Collider.pos.m_x = 0;
-	m_Collider.rad = 0;
+
+	m_Collider.h = 0;
+	m_Collider.w = 0;
+	m_Collider.x = 0;
+	m_Collider.y = 0;
 }
 
 void Player::draw(SDL_Renderer* m_pRenderer)
@@ -34,12 +36,11 @@ void Player::update()
 	handleInput();
 	m_pos += m_vel;
 	moveCollider();
-	
 }
 
-void Player::collision()
+void Player::resolveCollision()
 {
-
+	m_pos -= m_vel;
 }
 
 inline std::string Player::type()
@@ -47,7 +48,7 @@ inline std::string Player::type()
 	return "Player";
 }
 
-// player controlled by a gamepad
+// player is controlled by a gamepad
 void Player::handleInput()
 {
 	if (TheInputHandler::Instance()->getAxisX(0, 1) > 0)
@@ -73,57 +74,51 @@ void Player::setVelocity(const Vector2D vel)
 	m_vel += vel;
 }
 
-bool Player::checkCollision(SDL_Rect& b)
+bool Player::checkCollision(const std::vector<Sint16>& m_vertexX, const std::vector<Sint16>& m_vertexY)
 {
-	Circle& a = m_Collider;
-	//Closest point on collision box
-	int cX, cY;
-	//Find closest x offset
-	if (a.pos.getX() < b.x)
-	{
-		cX = b.x;
-	}
-	else if (a.pos.getX() > b.x + b.w)
-	{
-		cX = b.x + b.w;
-	}
-	else
-	{
-		cX = a.pos.getX();
-	}
-	//Find closest y offset
-	if (a.pos.getY() < b.y)
-	{
-		cY = b.y;
-	}
-	else if (a.pos.getY() > b.y + b.h)
-	{
-		cY = b.y + b.h;
-	}
-	else
-	{
-		cY = a.pos.getY();
-	}
-	//If the closest point is inside the circle
-	if (distanceSquared(a.pos.getX(), a.pos.getY(), cX, cY) < a.rad * a.rad)
-	{
-		//This box and the circle have collided
-		return true;
-	}
-	//If the shapes have not collided
-	return false;
-}
+	std::vector<Sint16>::size_type i = 0;
 
-//__int32 to avoid a compiler overflow warning
-__int32 Player::distanceSquared(int x1, int y1, int x2, int y2)
-{
-	int deltaX = x2 - x1;
-	int deltaY = y2 - y1;
-	return deltaX * deltaX + deltaY * deltaY;
+	int lastX = 0;
+	int lastY = 0;
+	bool even = false;
+
+	if (m_vertexX.size() % 2 == 0) // even number of elements
+	{
+		even = true;
+		lastX = m_vertexX[0];// remember the first coordinates
+		lastY = m_vertexY[0];// for the last point of the last line
+	}
+	
+	while (i < m_vertexX.size())
+	{
+		int x1 = m_vertexX.at(i);
+		int y1 = m_vertexY.at(i);
+		int x2 = 0;
+		int y2 = 0;
+		if (i + 1 < m_vertexX.size())
+		{
+			x2 = m_vertexX.at(i+1);
+			y2 = m_vertexY.at(i+1);
+		} 
+		else
+		if ((i + 1 == m_vertexX.size()) && (even))
+		{
+			x2 = lastX;
+			y2 = lastY;
+		}
+		if (SDL_IntersectRectAndLine(&m_Collider, &x1, &y1, &x2, &y2))
+		{
+ 			return true;
+		}
+		i++;
+	}
+	return false;
 }
 
 void Player::moveCollider()
 {
-	m_Collider.pos.setX(m_pos.getX());
-	m_Collider.pos.setY(m_pos.getY());
+	m_Collider.x = m_pos.getX() - PLAYER_RADIUS / 2;
+	m_Collider.w = PLAYER_RADIUS;
+	m_Collider.y = m_pos.getY() - PLAYER_RADIUS / 2;
+	m_Collider.h = PLAYER_RADIUS;
 }
