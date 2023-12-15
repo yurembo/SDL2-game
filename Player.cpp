@@ -85,8 +85,8 @@ bool Player::checkCollision(const std::vector<Sint16>& m_vertexX, const std::vec
 	if (m_vertexX.size() % 2 == 0) // even number of elements
 	{
 		even = true;
-		lastX = m_vertexX[0];// remember the first coordinates
-		lastY = m_vertexY[0];// for the last point of the last line
+		lastX = m_vertexX[0];// remember coordinates of the first vertex
+		lastY = m_vertexY[0];// to create the last vertex of the last line
 	}
 	
 	while (i < m_vertexX.size())
