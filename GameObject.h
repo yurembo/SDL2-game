@@ -11,8 +11,13 @@ public:
 	// base class needs virtual destructor
 	virtual ~GameObject() 
 	{ 
-		m_pos.m_x = 0; 
-		m_pos.m_y = 0;
+		m_pos.setX(0); 
+		m_pos.setY(0);
+
+		m_Collider.x = 0;
+		m_Collider.y = 0;
+		m_Collider.w = 0;
+		m_Collider.h = 0;
 	}
 
 	// draw the object
@@ -21,13 +26,19 @@ public:
 	virtual std::string type() = 0;
 	// getters for common variable
 	Vector2D& getPosition() { return m_pos; }
+	SDL_Rect& getCollider() { return m_Collider; }
 
 protected:
 	// constructor with default initialisation list
-	GameObject() : m_pos(0, 0)
+	GameObject() : m_pos ( 0, 0 )
 	{
-
+		m_Collider.x = 0;
+		m_Collider.y = 0;
+		m_Collider.w = 0;
+		m_Collider.h = 0;
 	}
 	// position
 	Vector2D m_pos;
+	// collision rectangle
+	SDL_Rect m_Collider;
 };

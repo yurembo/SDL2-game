@@ -22,11 +22,14 @@ public:
 	void handleInput();
 	void setVelocity(const Vector2D vel);
 
-	bool checkCollision(const std::vector<Sint16>& m_vertexX, const std::vector<Sint16>& m_vertexY);
+	bool checkCollisionWithPolygon(SDL_Renderer* m_pRenderer, const std::vector<Sint16>& m_vertexX, const std::vector<Sint16>& m_vertexY);
+	bool checkCollisionWithBonus(const SDL_Rect& rect1, const SDL_Rect& rect2);
+
+	void setScore(const int score);
+	int getScore() const;
 	
 private:
+	int m_score;
 	// velocity
 	Vector2D m_vel;
-	//hidden rectangle to check a collision
-	SDL_Rect m_Collider;
 };

@@ -1,15 +1,17 @@
 #include <iostream>
 #include <fstream>
 #include <SDL2_gfxPrimitives.h>
+#include <ctime>
 #include "Game.h"
 #include "InputHandler.h"
 #include "Player.h"
 #include "GameObject.h"
 #include "Polygon.h"
+#include "Bonus.h"
 
 Game* Game::s_pInstance = 0;
 
-Game::Game() : m_pWindow(0), m_pRenderer(0), m_bRunning(false)
+Game::Game() : m_pWindow(0), m_pRenderer(0), m_bRunning(false), m_bonus(nullptr)
 {
 
 }
@@ -20,6 +22,12 @@ Game::~Game()
 	m_pRenderer = 0;
 
 	m_gameObjs.clear();
+
+	if (m_bonus) 
+	{
+		delete m_bonus;
+		m_bonus = nullptr;
+	}
 }
 
 bool Game::init(const char* title, int xpos, int ypos, int width,int height, bool fullscreen)
@@ -71,6 +79,10 @@ bool Game::init(const char* title, int xpos, int ypos, int width,int height, boo
 	LoadPolygonsFromFile(FILENAME);
 	m_player = std::make_unique<Player>();
 
+	std::random_device dev;
+	m_random_engine.seed(dev());
+	CreateBonus();
+
 	return true;
 }
 
@@ -83,19 +95,34 @@ void Game::draw()
 	{
 		for (std::vector<GameObject*>::size_type i = 0; i < m_gameObjs.size(); ++i)
 		{
-			m_gameObjs[i]->draw(m_pRenderer);
+			m_gameObjs[i]->draw(m_pRenderer);			
 			Polygon* poly = dynamic_cast<Polygon*>(m_gameObjs[i]);
-			if (m_player->checkCollision(poly->getVertexX(), poly->getVertexY()))
+			if (m_player->checkCollisionWithPolygon(m_pRenderer, poly->getVertexX(), poly->getVertexY()))
 			{
 				std::cout << "collide";
 				m_player->resolveCollision();
 			}
 		}
+		if ((m_bonus != nullptr) && (m_player->checkCollisionWithBonus(m_player->getCollider(), m_bonus->getCollider())))
+		{
+			delete m_bonus;
+			m_bonus = nullptr;
+			CreateBonus();
+		}
 		m_player->update();
 		m_player->draw(m_pRenderer);
 	}
+	if (m_bonus) {
+		m_bonus->draw(m_pRenderer);
+	}
 
-	stringRGBA(m_pRenderer, TITLE_X, TITLE_Y, "Use arrows to move a circle, use Esc to exit.", 255, 255, 255, 255);
+	stringRGBA(m_pRenderer, TITLE_X, TITLE_Y, "Use arrows, WASD or left stick on a gamepad to move the circle, press Esc to exit.", 255, 255, 255, 255);
+	if (m_player)
+	{
+		int score = m_player->getScore();
+		std::string s = "Score: " + std::to_string(score);
+		stringRGBA(m_pRenderer, TITLE_X, SCREEN_HEIGHT - TITLE_Y*2, s.c_str(), 255, 255, 255, 255);
+	}
 	
 	SDL_RenderPresent(m_pRenderer); // flip to the screen
 }
@@ -123,15 +150,15 @@ void Game::handleEvents()
 
 void Game::LoadPolygonsFromFile(const std::string fileName)//load a vertices data from the file to build polygons
 {
-	std::ifstream myFile("coords.txt");
+	std::ifstream myFile(fileName);
 	if (myFile.is_open())
 	{
 		while (myFile.good())
 		{
-			std::string line;
+			std::string line("");
 			bool part(false);
-			std::vector<int> x_vect;
-			std::vector<int> y_vect;
+			std::vector<int> x_vect(0);
+			std::vector<int> y_vect(0);
 			std::getline(myFile, line);
 			std::string str_x(""), str_y("");
 
@@ -169,5 +196,27 @@ void Game::LoadPolygonsFromFile(const std::string fileName)//load a vertices dat
 			GameObject* poly = new Polygon(x_vect, y_vect);
 			m_gameObjs.push_back(poly);
 		}
+	}
+}
+
+void Game::CreateBonus()
+{
+	std::uniform_int_distribution<std::mt19937::result_type> x_range(0, SCREEN_WIDTH);
+	std::uniform_int_distribution<std::mt19937::result_type> y_range(0, SCREEN_HEIGHT);
+
+	while (m_bonus == nullptr)
+	{
+		to_begin://label 
+		SDL_Rect rect { (int)x_range(m_random_engine), (int)y_range(m_random_engine), BONUS_RECT_WIDTH, BONUS_RECT_WIDTH };
+		for (std::vector<GameObject*>::size_type i = 0; i < m_gameObjs.size(); ++i)
+		{
+			Polygon* poly = dynamic_cast<Polygon*>(m_gameObjs[i]);
+
+			if (SDL_HasIntersection(&rect, poly->getCollider()) == SDL_TRUE)
+			{
+				goto to_begin;
+			}
+		}
+		m_bonus = new Bonus(rect.x, rect.y);
 	}
 }

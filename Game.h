@@ -4,10 +4,12 @@
 #include <vector>
 #include <string>
 #include <SDL.h>
+#include <random>
 
 class Player;
 class GameObject;
 class Vector2D;
+class Bonus;
 
 class Game
 {
@@ -42,6 +44,10 @@ private:
 
 	std::unique_ptr<Player> m_player;
 	std::vector<GameObject*>  m_gameObjs;
+	Bonus* m_bonus;
+
+	//random generator
+	std::mt19937 m_random_engine;
 
 	Game();
 	~Game();
@@ -50,5 +56,6 @@ private:
 	Game& operator=(const Game&);
 
 	void LoadPolygonsFromFile(const std::string fileName);
+	void CreateBonus();
 };
 typedef Game TheGame;

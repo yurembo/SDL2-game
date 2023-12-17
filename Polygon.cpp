@@ -42,9 +42,9 @@ std::string Polygon::type()
 	return "Polygon";
 }
 
-SDL_Rect Polygon::getCollider() const
+SDL_Rect* Polygon::getCollider()
 {
-	return m_Collider;
+	return &m_Collider;
 }
 
 std::vector<Sint16> Polygon::getVertexX() const
