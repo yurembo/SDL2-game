@@ -30,6 +30,8 @@ public:
 
 	void setInertia();
 	bool getInertia() { return m_inertia; }
+
+	void pickUpGamePad() { m_GamePad = true; }
 private:
 	int m_score;
 	// velocity
@@ -38,4 +40,5 @@ private:
 	Vector2D m_targetPos;
 	//
 	bool m_inertia;
+	bool m_GamePad;
 };

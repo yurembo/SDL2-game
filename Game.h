@@ -36,8 +36,9 @@ public:
 
 	void setPlayerVelocity(const Vector2D vec);
 	void setPlayerInertia();
-	bool getCollisionDetect();
 	bool getInertia();
+
+	void readValueFromFileToChooseControlDevice();//0 - keyboard, 1 - gamepad
 
 private:
 	bool m_bRunning;

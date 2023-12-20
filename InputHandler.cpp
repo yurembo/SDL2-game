@@ -94,8 +94,6 @@ void InputHandler::onKeyDown(SDL_Event& e)
 		TheGame::Instance()->quit();
 	}
 
-	// || TheGame::Instance()->getInertia())
-
  	if (e.key.keysym.sym == SDLK_UP || e.key.keysym.sym == SDLK_w) 
 	{
  		Vector2D vel(0, -INC_STEP);
@@ -120,27 +118,20 @@ void InputHandler::onKeyDown(SDL_Event& e)
 
 void InputHandler::onKeyUp(SDL_Event& e)
 {
-	//if (TheGame::Instance()->getCollisionDetect())// || TheGame::Instance()->getInertia())
-		//return;
-
 	if (e.key.keysym.sym == SDLK_UP || e.key.keysym.sym == SDLK_w)
 	{
-		Vector2D vel(0, INC_STEP);
-		TheGame::Instance()->setPlayerInertia();// setPlayerVelocity(vel);
+		TheGame::Instance()->setPlayerInertia();
 	}
 	if (e.key.keysym.sym == SDLK_DOWN || e.key.keysym.sym == SDLK_s)
 	{
-		Vector2D vel(0, -INC_STEP);
 		TheGame::Instance()->setPlayerInertia();
 	}
 	if (e.key.keysym.sym == SDLK_LEFT || e.key.keysym.sym == SDLK_a)
 	{
-		Vector2D vel(INC_STEP, 0);
 		TheGame::Instance()->setPlayerInertia();
 	}
 	if (e.key.keysym.sym == SDLK_RIGHT || e.key.keysym.sym == SDLK_d)
 	{
-		Vector2D vel(-INC_STEP, 0);
 		TheGame::Instance()->setPlayerInertia();
 	}
 }
@@ -180,40 +171,6 @@ void InputHandler::onJoystickAxisMove(SDL_Event& event)
 		else
 		{
 			m_joystickValues[whichOne].first->setY(0);
-		}
-	}
-
-	// right stick move left or right
-	if (event.jaxis.axis == 3)
-	{
-		if (event.jaxis.value > m_joystickDeadZone)
-		{
-			m_joystickValues[whichOne].second->setX(1);
-		}
-		else if (event.jaxis.value < -m_joystickDeadZone)
-		{
-			m_joystickValues[whichOne].second->setX(-1);
-		}
-		else
-		{
-			m_joystickValues[whichOne].second->setX(0);
-		}
-	}
-
-	// right stick move up or down
-	if (event.jaxis.axis == 4)
-	{
-		if (event.jaxis.value > m_joystickDeadZone)
-		{
-			m_joystickValues[whichOne].second->setY(1);
-		}
-		else if (event.jaxis.value < -m_joystickDeadZone)
-		{
-			m_joystickValues[whichOne].second->setY(-1);
-		}
-		else
-		{
-			m_joystickValues[whichOne].second->setY(0);
 		}
 	}
 }

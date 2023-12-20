@@ -4,7 +4,7 @@
 #include "InputHandler.h"
 #include "Game.h"
 
-Player::Player() : m_vel(0.f,0.f), m_score(0), m_targetPos(0.f,0.f), m_inertia(false)
+Player::Player() : m_vel(0.f,0.f), m_score(0), m_targetPos(0.f,0.f), m_inertia(false), m_GamePad(false)
 {
 	m_pos.setX(SCREEN_WIDTH / 2);
 	m_pos.setY(SCREEN_HEIGHT / 2);
@@ -31,6 +31,7 @@ Player::~Player()
 	m_targetPos.setY(0.f);
 
 	m_inertia = false;
+	m_GamePad = false;
 }
 
 void Player::draw(SDL_Renderer* m_pRenderer)
@@ -42,8 +43,10 @@ void Player::update()
 {
 	if (m_inertia) 
 		setInertia();
+	
+	if (m_GamePad)
+		handleInput();
 
-	handleInput();
 	m_pos += m_vel;
 	moveCollider();
 }
@@ -72,22 +75,32 @@ inline std::string Player::type()
 // player is controlled by a gamepad
 void Player::handleInput()
 {
+	Vector2D vel(0,0);
 	if (TheInputHandler::Instance()->getAxisX(0, 1) > 0)
     {
-		m_pos.setX(m_pos.getX() + INC_STEP);
+		//m_pos.setX(m_pos.getX() + INC_STEP);
+		vel.setX(INC_STEP);
+		//m_vel = vel;
     }
 	if (TheInputHandler::Instance()->getAxisX(0, 1) < 0)
 	{
-		m_pos.setX(m_pos.getX() - INC_STEP);
+		//m_pos.setX(m_pos.getX() - INC_STEP);
+		vel.setX(-INC_STEP);
+		//m_vel = vel;
 	}
 	if (TheInputHandler::Instance()->getAxisY(0, 1) > 0)
 	{
-		m_pos.setY(m_pos.getY() + INC_STEP);
+		//m_pos.setY(m_pos.getY() + INC_STEP);
+		vel.setY(INC_STEP);
+		//m_vel = vel;
 	}
 	if (TheInputHandler::Instance()->getAxisY(0, 1) < 0)
 	{
-		m_pos.setY(m_pos.getY() - INC_STEP);
+		//m_pos.setY(m_pos.getY() - INC_STEP);
+		vel.setY(-INC_STEP);
+		//m_vel = vel;
 	}
+	m_vel = vel;
 }
 
 void Player::setVelocity(const Vector2D& vel)
@@ -117,7 +130,7 @@ bool Player::checkCollisionWithPolygon(SDL_Renderer* m_pRenderer, const std::vec
 				x2 = m_vertexX.at(0);
 				y2 = m_vertexY.at(0);
 			}
-		//SDL_RenderDrawLine(m_pRenderer, x1, y1, x2, y2); - to draw edges
+		//SDL_RenderDrawLine(m_pRenderer, x1, y1, x2, y2); - to draw polygons' edges
 		if (SDL_IntersectRectAndLine(&m_Collider, &x1, &y1, &x2, &y2))
 		{
 			return true;
@@ -153,12 +166,10 @@ void Player::setInertia()
 
 	if (m_vel.getX() < 0)
 		m_vel.setX(m_vel.getX() + bound);
-	else 
 	if (m_vel.getX() > 0)
 		m_vel.setX(m_vel.getX() - bound);
 	if (m_vel.getY() > 0)
 		m_vel.setY(m_vel.getY() - bound);
-	else 
 	if (m_vel.getY() < 0)
 		m_vel.setY(m_vel.getY() + bound);
 

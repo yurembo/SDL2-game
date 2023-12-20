@@ -13,6 +13,6 @@ static const std::string FILENAME = "coords.txt";
 static const std::string GAME_TITLE = "SDL2 Game";
 
 // speed
-static const int INC_STEP = 6;
+static const int INC_STEP = 7;
 
 static const int BONUS_RECT_WIDTH = 50;

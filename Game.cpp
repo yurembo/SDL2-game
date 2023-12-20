@@ -83,6 +83,8 @@ bool Game::init(const char* title, int xpos, int ypos, int width,int height, boo
 	m_random_engine.seed(dev());
 	CreateBonus();
 
+	readValueFromFileToChooseControlDevice();
+
 	return true;
 }
 
@@ -233,5 +235,23 @@ void Game::CreateBonus()
 			}
 		}
 		m_bonus = new Bonus(static_cast<float>(rect.x), static_cast<float>(rect.y));
+	}
+}
+
+
+void Game::readValueFromFileToChooseControlDevice()//0 - keyborad, 1 - gamepad
+{
+	std::ifstream myFile("gamepad.txt");
+	if (myFile.is_open())
+	{
+		std::string line("");
+		std::getline(myFile, line);
+		if (line == "1") 
+		{
+			if (m_player != nullptr)
+			{
+				m_player->pickUpGamePad();
+			}
+		}
 	}
 }
