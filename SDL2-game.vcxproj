@@ -162,7 +162,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bonus.h" />
-    <ClInclude Include="Circle.h" />
     <ClInclude Include="const.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameObject.h" />

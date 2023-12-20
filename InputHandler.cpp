@@ -92,7 +92,10 @@ void InputHandler::onKeyDown(SDL_Event& e)
 	if (e.key.keysym.sym == SDLK_ESCAPE)
 	{
 		TheGame::Instance()->quit();
-	}else
+	}
+
+	// || TheGame::Instance()->getInertia())
+
  	if (e.key.keysym.sym == SDLK_UP || e.key.keysym.sym == SDLK_w) 
 	{
  		Vector2D vel(0, -INC_STEP);
@@ -117,26 +120,28 @@ void InputHandler::onKeyDown(SDL_Event& e)
 
 void InputHandler::onKeyUp(SDL_Event& e)
 {
+	//if (TheGame::Instance()->getCollisionDetect())// || TheGame::Instance()->getInertia())
+		//return;
+
 	if (e.key.keysym.sym == SDLK_UP || e.key.keysym.sym == SDLK_w)
 	{
 		Vector2D vel(0, INC_STEP);
-		TheGame::Instance()->setPlayerVelocity(vel);
-	}else
+		TheGame::Instance()->setPlayerInertia();// setPlayerVelocity(vel);
+	}
 	if (e.key.keysym.sym == SDLK_DOWN || e.key.keysym.sym == SDLK_s)
 	{
 		Vector2D vel(0, -INC_STEP);
-		TheGame::Instance()->setPlayerVelocity(vel);
+		TheGame::Instance()->setPlayerInertia();
 	}
 	if (e.key.keysym.sym == SDLK_LEFT || e.key.keysym.sym == SDLK_a)
 	{
 		Vector2D vel(INC_STEP, 0);
-		TheGame::Instance()->setPlayerVelocity(vel);
+		TheGame::Instance()->setPlayerInertia();
 	}
-	else
 	if (e.key.keysym.sym == SDLK_RIGHT || e.key.keysym.sym == SDLK_d)
 	{
 		Vector2D vel(-INC_STEP, 0);
-		TheGame::Instance()->setPlayerVelocity(vel);
+		TheGame::Instance()->setPlayerInertia();
 	}
 }
 
@@ -213,7 +218,7 @@ void InputHandler::onJoystickAxisMove(SDL_Event& event)
 	}
 }
 
-int InputHandler::getAxisX(int joy, int stick) const
+float InputHandler::getAxisX(int joy, int stick) const
 {
 	if (m_joystickValues.size() > 0)
 	{
@@ -229,7 +234,7 @@ int InputHandler::getAxisX(int joy, int stick) const
 	return 0;
 }
 
-int InputHandler::getAxisY(int joy, int stick) const
+float InputHandler::getAxisY(int joy, int stick) const
 {
 	if (m_joystickValues.size() > 0)
 	{

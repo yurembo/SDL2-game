@@ -19,6 +19,9 @@ Polygon::Polygon(const std::vector<int>& x_coords, const std::vector<int>& y_coo
 	m_Collider.y = *minY;
 	m_Collider.w = *maxX - *minX;
 	m_Collider.h = *maxY - *minY;
+
+	m_pos.setX(static_cast<float>(m_Collider.w / 2));
+	m_pos.setY(static_cast<float>(m_Collider.h / 2));
 }
 
 Polygon::~Polygon()

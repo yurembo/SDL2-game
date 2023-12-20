@@ -4,21 +4,20 @@
 #include "InputHandler.h"
 #include "Game.h"
 
-Player::Player() : m_vel(0,0)
+Player::Player() : m_vel(0.f,0.f), m_score(0), m_targetPos(0.f,0.f), m_inertia(false)
 {
 	m_pos.setX(SCREEN_WIDTH / 2);
 	m_pos.setY(SCREEN_HEIGHT / 2);
-	m_score = 0;
 
 	moveCollider();
 }
 
 Player::~Player()
 {
-	m_pos.setX(0);
-	m_pos.setY(0);
+	m_pos.setX(0.f);
+	m_pos.setY(0.f);
 
-	m_vel.setX(0);
+	m_vel.setX(0.f);
 	m_vel.setY(0);
 
 	m_Collider.h = 0;
@@ -27,45 +26,42 @@ Player::~Player()
 	m_Collider.y = 0;
 
 	m_score = 0;
+
+	m_targetPos.setX(0.f);
+	m_targetPos.setY(0.f);
+
+	m_inertia = false;
 }
 
 void Player::draw(SDL_Renderer* m_pRenderer)
 {
-	filledCircleRGBA(m_pRenderer, m_pos.getX(), m_pos.getY(), PLAYER_RADIUS, 255, 255, 0, 255);
+	filledCircleRGBA(m_pRenderer, static_cast<Sint16>(m_pos.getX()), static_cast<Sint16>(m_pos.getY()), PLAYER_RADIUS, 255, 255, 0, 255);
 }
 
 void Player::update()
 {
+	if (m_inertia) 
+		setInertia();
+
 	handleInput();
 	m_pos += m_vel;
 	moveCollider();
 }
 
-void Player::resolveCollision()
+void Player::resolveCollision(const Polygon& poly)
 {
-	//m_pos -= m_vel;
-	/*
-	// Вычисляем относительную скорость
-	Vector2D rv = m_vel;
+	const float divider = 8;
 
-	// Вычисляем относительную скорость относительно направления нормали
-	float velAlongNormal = rv.dot(normal);
+ 	Vector2D vecDiff = Vector2D::norm(m_vel);
+ 	float Dist = PLAYER_RADIUS; 
+ 	Dist = sqrt(Dist);
+ 	float ToPush = PLAYER_RADIUS - Dist;
+ 	vecDiff *= ToPush;
+ 	m_pos -= vecDiff;
+	m_targetPos = m_pos - vecDiff;
 
-	// Не выполняем вычислений, если скорости разделены
-	if (velAlongNormal > 0);
-		return;
-
-	// Вычисляем упругость
-	//float e = min(A.restitution, B.restitution);
-
-	// Вычисляем скаляр импульса силы
-	float j = -1 * velAlongNormal;
-	//j /= 1 / A.mass + 1 / B.mass;
-
-	// Прикладываем импульс силы
-	Vector2D impulse = j * normal;
-	m_vel = -1 / impulse;
-	*/
+	m_vel = -m_vel / divider;
+	m_inertia = true;
 }
 
 inline std::string Player::type()
@@ -94,18 +90,15 @@ void Player::handleInput()
 	}
 }
 
-void Player::setVelocity(const Vector2D vel)
+void Player::setVelocity(const Vector2D& vel)
 {
 	m_vel += vel;
 }
 
-bool Player::checkCollisionWithPolygon(SDL_Renderer* m_pRenderer, const std::vector<Sint16>& m_vertexX, const std::vector<Sint16>& m_vertexY)
+bool Player::checkCollisionWithPolygon(SDL_Renderer* m_pRenderer, const std::vector<Sint16>& m_vertexX, const std::vector<Sint16>& m_vertexY) 
 {
 	std::vector<Sint16>::size_type i = 0;
-	int lastX = 0;
-	int lastY = 0;
 	//SDL_SetRenderDrawColor(m_pRenderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
-	int numv = m_vertexX.size() + 1;
 
 	while (i < m_vertexX.size())
 	{
@@ -117,15 +110,14 @@ bool Player::checkCollisionWithPolygon(SDL_Renderer* m_pRenderer, const std::vec
 		{
 			x2 = m_vertexX.at(i + 1);
 			y2 = m_vertexY.at(i + 1);
-			//SDL_RenderDrawLine(m_pRenderer, x1, y1, x2, y2);
 		}
 		else
-			if ((i + 1 == m_vertexX.size()))
+			if (i + 1 == m_vertexX.size())
 			{
 				x2 = m_vertexX.at(0);
 				y2 = m_vertexY.at(0);
-				//SDL_RenderDrawLine(m_pRenderer, x1, y1, x2, y2);
 			}
+		//SDL_RenderDrawLine(m_pRenderer, x1, y1, x2, y2); - to draw edges
 		if (SDL_IntersectRectAndLine(&m_Collider, &x1, &y1, &x2, &y2))
 		{
 			return true;
@@ -155,10 +147,35 @@ int Player::getScore() const
 	return m_score;
 }
 
+void Player::setInertia()
+{
+	const float bound = 0.15f;
+
+	if (m_vel.getX() < 0)
+		m_vel.setX(m_vel.getX() + bound);
+	else 
+	if (m_vel.getX() > 0)
+		m_vel.setX(m_vel.getX() - bound);
+	if (m_vel.getY() > 0)
+		m_vel.setY(m_vel.getY() - bound);
+	else 
+	if (m_vel.getY() < 0)
+		m_vel.setY(m_vel.getY() + bound);
+
+	if (round(m_vel.getX()) == 0.f && round(m_vel.getY()) == 0.f) 
+	{
+		m_inertia = false;
+		m_vel.setX(0.f);
+		m_vel.setY(0.f);
+	}
+ 	else
+ 		m_inertia = true;
+}
+
 void Player::moveCollider()
 {
-	m_Collider.x = m_pos.getX() - PLAYER_RADIUS / 2;
+	m_Collider.x = static_cast<int>(m_pos.getX() - PLAYER_RADIUS / 2);
 	m_Collider.w = PLAYER_RADIUS;
-	m_Collider.y = m_pos.getY() - PLAYER_RADIUS / 2;
+	m_Collider.y = static_cast<int>(m_pos.getY() - PLAYER_RADIUS / 2);
 	m_Collider.h = PLAYER_RADIUS;
 }

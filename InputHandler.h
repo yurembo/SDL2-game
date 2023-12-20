@@ -24,8 +24,8 @@ public:
 	bool isKeyUp(SDL_Scancode key) const;
 
 	// joystick events
-	int getAxisX(int joy, int stick) const;
-	int getAxisY(int joy, int stick) const;
+	float getAxisX(int joy, int stick) const;
+	float getAxisY(int joy, int stick) const;
 
 	// init joysticks
 	void initialiseJoysticks();

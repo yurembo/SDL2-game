@@ -6,24 +6,29 @@
 class Vector2D
 {
 public:
-	Vector2D() : m_x(0), m_y(0) {}
+	Vector2D() : m_x(0.f), m_y(0.f) {}
 
-	Vector2D(const int x, const int y) : m_x(x), m_y(y) {}
+	Vector2D(const float x, const float y) : m_x(x), m_y(y) {}
 
-	const int getX() { return m_x; }
-	const int getY() { return m_y; }
+	const float getX() { return m_x; }
+	const float getY() { return m_y; }
 
-	void setX(const int x) { m_x = x; }
-	void setY(const int y) { m_y = y; }
+	void setX(const float x) { m_x = x; }
+	void setY(const float y) { m_y = y; }
 
-	int length() 
+	float length() 
 	{ 
-		return (int)sqrt(m_x * m_x + m_y * m_y); 
+		return (float)sqrt(m_x * m_x + m_y * m_y); 
 	}
 
 	Vector2D operator+(const Vector2D& v2) const 
 	{ 
 		return Vector2D(m_x + v2.m_x, m_y + v2.m_y); 
+	}
+
+	Vector2D operator+(const float scalar) const
+	{
+		return Vector2D(m_x + scalar, m_y + scalar);
 	}
 
 	friend Vector2D& operator+=(Vector2D& v1, const Vector2D& v2)
@@ -34,7 +39,15 @@ public:
 		return v1;
 	}
 
-	Vector2D operator-(const Vector2D& v2) const { return Vector2D(m_x - v2.m_x, m_y - v2.m_y); }
+	Vector2D operator-(const Vector2D& v2) const
+	{ 
+		return Vector2D(m_x - v2.m_x, m_y - v2.m_y); 
+	}
+
+	Vector2D operator-(const float scalar) const
+	{
+		return Vector2D(m_x - scalar, m_y - scalar);
+	}
 
 	friend Vector2D& operator-=(Vector2D& v1, const Vector2D& v2)
 	{
@@ -45,12 +58,12 @@ public:
 	}
 
 
-	Vector2D operator*(const int scalar)
-	{
-		return Vector2D(m_x * scalar, m_y * scalar);
-	}
+ 	Vector2D operator*(const float scalar)
+ 	{
+ 		return Vector2D(m_x * scalar, m_y * scalar);
+ 	}
 
-	Vector2D& operator*=(const int scalar)
+	Vector2D& operator*=(const float scalar)
 	{
 		m_x *= scalar;
 		m_y *= scalar;
@@ -58,12 +71,12 @@ public:
 		return *this;
 	}
 
-	Vector2D operator/(const int scalar)
+	Vector2D operator/(const float scalar)
 	{
 		return Vector2D(m_x / scalar, m_y / scalar);
 	}
 
-	Vector2D& operator/=(const int scalar)
+	Vector2D& operator/=(const float scalar)
 	{
 		m_x /= scalar;
 		m_y /= scalar;
@@ -71,17 +84,60 @@ public:
 		return *this;
 	}
 
-	Vector2D normalized(Vector2D vec)
+	bool operator!=(const Vector2D& vector) const
 	{
-		return vec * (1 / vec.length());
+		return m_x != vector.m_x || m_y != vector.m_y;
 	}
 
-	int dot(const Vector2D v2)
+	bool operator==(const Vector2D& vector) const
 	{
-		return (m_x * v2.m_x + m_y * v2.m_y);
+		return m_x == vector.m_x && m_y == vector.m_y;
+	}
+
+	bool operator<(const Vector2D& vector) const
+	{
+		return m_x < vector.m_x && m_y < vector.m_y;
+	}
+
+	bool operator>(const Vector2D& vector) const
+	{
+		return m_x > vector.m_x && m_y > vector.m_y;
+	}
+
+ 	static float mag(const Vector2D rhs) {
+ 		return sqrt(dot(rhs, rhs));
+ 	}
+
+ 	Vector2D operator*(float const& num) const
+ 	{
+ 		return Vector2D(m_x * num, m_y * num);
+ 	}
+
+ 	static Vector2D norm(const Vector2D& lhs) 
+ 	{
+ 		return (lhs*(1.f / (mag(lhs))));
+ 	}
+
+ 	static float dot(const Vector2D& lhs, const Vector2D& rhs) 
+	{
+ 		return lhs.m_x * rhs.m_x + lhs.m_y * rhs.m_y;
+ 	}
+
+	static Vector2D cross(const Vector2D& vec1, const Vector2D& vec2)
+	{
+		Vector2D resVec;
+		resVec.m_x = ((vec1.m_y * vec2.m_x) - (vec1.m_x * vec2.m_y));
+		resVec.m_y = ((vec1.m_x * vec2.m_y) - (vec1.m_x * vec2.m_y));
+
+		return resVec;
+	}
+
+	Vector2D operator-() const
+	{
+		return Vector2D(-m_x, -m_y);
 	}
 
 private:
-	int m_x;
-	int m_y;
+	float m_x;
+	float m_y;
 };

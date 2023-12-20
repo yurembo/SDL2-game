@@ -100,7 +100,7 @@ void Game::draw()
 			if (m_player->checkCollisionWithPolygon(m_pRenderer, poly->getVertexX(), poly->getVertexY()))
 			{
 				std::cout << "collide";
-				m_player->resolveCollision();
+				m_player->resolveCollision(*poly);
 			}
 		}
 		if ((m_bonus != nullptr) && (m_player->checkCollisionWithBonus(m_player->getCollider(), m_bonus->getCollider())))
@@ -141,6 +141,21 @@ void Game::setPlayerVelocity(const Vector2D vec)
 {
 	if (m_player != nullptr)
 		m_player->setVelocity(vec);
+}
+
+void Game::setPlayerInertia()
+{
+	if (m_player != nullptr)
+		m_player->setInertia();
+}
+
+bool Game::getInertia()
+{
+	bool b = false;
+	if (m_player != nullptr)
+		b = m_player->getInertia();
+	return b;
+
 }
 
 void Game::handleEvents()
@@ -217,6 +232,6 @@ void Game::CreateBonus()
 				goto to_begin;
 			}
 		}
-		m_bonus = new Bonus(rect.x, rect.y);
+		m_bonus = new Bonus(static_cast<float>(rect.x), static_cast<float>(rect.y));
 	}
 }

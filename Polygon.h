@@ -17,7 +17,5 @@ public:
 private:
 	std::vector<Sint16>m_vertexX;
 	std::vector<Sint16>m_vertexY;
-	//hidden rectangle to find a place to create a bonus
-	//SDL_Rect m_Collider;
 };
 

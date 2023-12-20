@@ -35,6 +35,9 @@ public:
 	void quit() { m_bRunning = false; }
 
 	void setPlayerVelocity(const Vector2D vec);
+	void setPlayerInertia();
+	bool getCollisionDetect();
+	bool getInertia();
 
 private:
 	bool m_bRunning;
