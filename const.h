@@ -16,3 +16,5 @@ static const std::string GAME_TITLE = "SDL2 Game";
 static const int INC_STEP = 7;
 
 static const int BONUS_RECT_WIDTH = 50;
+
+static const float  PI_F = 3.14159265358979f;

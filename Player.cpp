@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "InputHandler.h"
 #include "Game.h"
+#include "FieldOfView.h"
 
 Player::Player() : m_vel(0.f,0.f), m_score(0), m_targetPos(0.f,0.f), m_inertia(false), m_GamePad(false)
 {
@@ -18,7 +19,7 @@ Player::~Player()
 	m_pos.setY(0.f);
 
 	m_vel.setX(0.f);
-	m_vel.setY(0);
+	m_vel.setY(0.f);
 
 	m_Collider.h = 0;
 	m_Collider.w = 0;
@@ -36,6 +37,8 @@ Player::~Player()
 
 void Player::draw(SDL_Renderer* m_pRenderer)
 {
+	TheField::Instance()->draw(m_pRenderer);
+
 	filledCircleRGBA(m_pRenderer, static_cast<Sint16>(m_pos.getX()), static_cast<Sint16>(m_pos.getY()), PLAYER_RADIUS, 255, 255, 0, 255);
 }
 
@@ -49,6 +52,8 @@ void Player::update()
 
 	m_pos += m_vel;
 	moveCollider();
+
+	TheField::Instance()->update(m_pos.getX(), m_pos.getY());
 }
 
 void Player::resolveCollision(const Polygon& poly)
@@ -78,27 +83,19 @@ void Player::handleInput()
 	Vector2D vel(0,0);
 	if (TheInputHandler::Instance()->getAxisX(0, 1) > 0)
     {
-		//m_pos.setX(m_pos.getX() + INC_STEP);
 		vel.setX(INC_STEP);
-		//m_vel = vel;
     }
 	if (TheInputHandler::Instance()->getAxisX(0, 1) < 0)
 	{
-		//m_pos.setX(m_pos.getX() - INC_STEP);
 		vel.setX(-INC_STEP);
-		//m_vel = vel;
 	}
 	if (TheInputHandler::Instance()->getAxisY(0, 1) > 0)
 	{
-		//m_pos.setY(m_pos.getY() + INC_STEP);
 		vel.setY(INC_STEP);
-		//m_vel = vel;
 	}
 	if (TheInputHandler::Instance()->getAxisY(0, 1) < 0)
 	{
-		//m_pos.setY(m_pos.getY() - INC_STEP);
 		vel.setY(-INC_STEP);
-		//m_vel = vel;
 	}
 	m_vel = vel;
 }

@@ -41,6 +41,11 @@ public:
 	void readValueFromFileToChooseControlDevice();//0 - keyboard, 1 - gamepad
 
 private:
+	Game();
+	~Game();
+	Game(const Game&);
+	Game& operator=(const Game&);
+
 	bool m_bRunning;
 	SDL_Window* m_pWindow;
 	SDL_Renderer* m_pRenderer;
@@ -52,12 +57,6 @@ private:
 
 	//random generator
 	std::mt19937 m_random_engine;
-
-	Game();
-	~Game();
-
-	Game(const Game&);
-	Game& operator=(const Game&);
 
 	void LoadPolygonsFromFile(const std::string fileName);
 	void CreateBonus();

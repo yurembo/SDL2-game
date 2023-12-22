@@ -16,10 +16,7 @@ Bonus::Bonus(const float xpos, const float ypos)
 
 Bonus::~Bonus()
 {
-	m_Collider.x = 0;
-	m_Collider.y = 0;
-	m_Collider.w = 0;
-	m_Collider.h = 0;
+
 }
 
 void Bonus::draw(SDL_Renderer* m_pRenderer)

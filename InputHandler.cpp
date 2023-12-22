@@ -103,7 +103,7 @@ void InputHandler::onKeyDown(SDL_Event& e)
 	{
 		Vector2D vel(0, INC_STEP);
 		TheGame::Instance()->setPlayerVelocity(vel);
-	}
+	}else
 	if (e.key.keysym.sym == SDLK_LEFT || e.key.keysym.sym == SDLK_a)
 	{
 		Vector2D vel(-INC_STEP, 0);

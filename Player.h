@@ -3,6 +3,8 @@
 #include "GameObject.h"
 #include "Polygon.h"
 
+class FieldOfView;
+
 class Player : public GameObject
 {
 public:
