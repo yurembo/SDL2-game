@@ -105,37 +105,133 @@ void Player::setVelocity(const Vector2D& vel)
 	m_vel += vel;
 }
 
-bool Player::checkCollisionWithPolygon(SDL_Renderer* m_pRenderer, const std::vector<Sint16>& m_vertexX, const std::vector<Sint16>& m_vertexY) 
+bool Player::checkCollisionWithPolygon(SDL_Renderer* m_pRenderer, const std::vector<Sint16>& vertexX, const std::vector<Sint16>& vertexY) 
 {
 	std::vector<Sint16>::size_type i = 0;
-	//SDL_SetRenderDrawColor(m_pRenderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
+	SDL_SetRenderDrawColor(m_pRenderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
 
-	while (i < m_vertexX.size())
+	while (i < vertexX.size())
 	{
-		int x1 = m_vertexX.at(i);
-		int y1 = m_vertexY.at(i);
-		int x2 = 0;
-		int y2 = 0;
-		if (i + 1 < m_vertexX.size())
+		std::vector<int> vec = getSegment(i, vertexX, vertexY);
+		if (!vec.empty())
 		{
-			x2 = m_vertexX.at(i + 1);
-			y2 = m_vertexY.at(i + 1);
-		}
-		else
-			if (i + 1 == m_vertexX.size())
+			SDL_RenderDrawLine(m_pRenderer, vec[0], vec[1], vec[2], vec[3]); // - to draw polygons' edges
+			if (SDL_IntersectRectAndLine(&m_Collider, &vec[0], &vec[1], &vec[2], &vec[3]))
 			{
-				x2 = m_vertexX.at(0);
-				y2 = m_vertexY.at(0);
+				return true;
 			}
-		//SDL_RenderDrawLine(m_pRenderer, x1, y1, x2, y2); - to draw polygons' edges
-		if (SDL_IntersectRectAndLine(&m_Collider, &x1, &y1, &x2, &y2))
-		{
-			return true;
 		}
 		i++;
 	}
 	return false;
 }
+
+std::vector<int> Player::getSegment(const unsigned int index, const std::vector<Sint16>& vertexX, const std::vector<Sint16>& vertexY) const
+{
+	if (!vertexX.empty() && !vertexY.empty())
+	{
+		int x1 = vertexX.at(index);
+		int y1 = vertexY.at(index);
+		int x2 = 0;
+		int y2 = 0;
+		if (index + 1 < vertexX.size())
+		{
+			x2 = vertexX.at(index + 1);
+			y2 = vertexY.at(index + 1);
+		}
+		else
+			if (index + 1 == vertexX.size())
+			{
+				x2 = vertexX.at(0);
+				y2 = vertexY.at(0);
+			}
+		std::vector<int> resVec { x1, y1, x2, y2 };
+		return resVec;
+	}
+	std::vector<int> resVec;
+	resVec.clear();
+
+	return resVec;
+}
+
+void Player::ShootRays(SDL_Renderer* m_pRenderer, const std::vector<Sint16>& vertexX, const std::vector<Sint16>& vertexY)
+{
+	const float pi2 = static_cast<float>(M_PI) * 2;
+	const int countOfRays = 50;
+
+	for (float angle = 0; angle < pi2; angle += pi2 / countOfRays)
+	{
+		float dx = m_pos.getX() + RAY_LENGTH * std::cosf(angle);
+		float dy = m_pos.getY() + RAY_LENGTH * std::sinf(angle);
+
+		lineRGBA(m_pRenderer, static_cast<int>(m_pos.getX()), static_cast<int>(m_pos.getY()), static_cast<int>(dx), static_cast<int>(dy), 255, 0, 0, 255);
+
+		Vector2D v1 { m_pos.getX(), m_pos.getY() };
+		Vector2D v2 { dx, dy };
+		std::pair<Vector2D, Vector2D> ray { v1, v2 };
+		std::vector<Sint16>::size_type i = 0;
+		while (i < vertexX.size())
+		{
+			std::vector<int> vec = getSegment(i, vertexX, vertexY);
+			if (!vec.empty())
+			{
+				Vector2D v3 { float(vec[0]), float(vec[1]) };
+				Vector2D v4 { float(vec[2]), float(vec[3]) };
+				std::pair<Vector2D, Vector2D> seg { v3, v4 };
+				Vector2D point = getIntersect(ray, seg);
+				filledCircleRGBA(m_pRenderer, (int)point.getX(), (int)point.getY(), 10, 255, 0, 0, 255);
+			}
+			i++;
+		}
+	}
+}
+ 
+Vector2D Player::getIntersect(const std::pair<Vector2D, Vector2D>& ray, const std::pair<Vector2D, Vector2D>& segment)
+{
+	Vector2D v {0,0};
+ 	// RAY in parametric: Point + Delta*T1
+	float r_px = Vector2D(ray.first).getX();
+	float r_py = Vector2D(ray.first).getY();
+	float r_dx = Vector2D(ray.second).getX() - r_px;
+	float r_dy = Vector2D(ray.second).getY() - r_py;
+ 
+ 	// SEGMENT in parametric: Point + Delta*T2
+	float s_px = Vector2D(segment.first).getX();
+	float s_py = Vector2D(segment.first).getY();
+	float s_dx = Vector2D(segment.second).getX() - s_px;
+	float s_dy = Vector2D(segment.second).getY() - s_py;
+ 
+ 	// Are they parallel? If so, no intersect
+	float r_mag = sqrt(r_dx * r_dx + r_dy * r_dy);
+	float s_mag = sqrt(s_dx * s_dx + s_dy * s_dy);
+	if (r_dx / r_mag == s_dx / s_mag && r_dy / r_mag == s_dy / s_mag)
+	{
+		return v;
+	}
+ 
+ 	// SOLVE FOR T1 & T2
+	float T2 = (r_dx * (s_py - r_py) + r_dy * (r_px - s_px)) / (s_dx * r_dy - s_dy * r_dx);
+	float T1 = (s_px + s_dx * T2 - r_px) / r_dx;
+ 
+ 	// Must be within parametic whatevers for RAY/SEGMENT
+ 	if (T1 < 0) 
+	{
+		return v;
+	}
+
+	if (T2 < 0 || T2 > 1)
+	{
+		return v;	
+	}
+ 
+ 	// Return the POINT OF INTERSECTION
+ 	float x = r_px + r_dx * T1;
+	float y = r_py + r_dy * T1;
+	v.setX(x);
+	v.setY(y);
+
+	return v;
+ }
 
 bool Player::checkCollisionWithBonus(const SDL_Rect& rect1, const SDL_Rect& rect2)
 {

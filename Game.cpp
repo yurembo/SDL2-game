@@ -104,6 +104,7 @@ void Game::draw()
 				std::cout << "collide";
 				m_player->resolveCollision(*poly);
 			}
+			m_player->ShootRays(m_pRenderer, poly->getVertexX(), poly->getVertexY());
 		}
 		if ((m_bonus != nullptr) && (m_player->checkCollisionWithBonus(m_player->getCollider(), m_bonus->getCollider())))
 		{

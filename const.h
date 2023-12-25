@@ -17,4 +17,4 @@ static const int INC_STEP = 7;
 
 static const int BONUS_RECT_WIDTH = 50;
 
-static const float  PI_F = 3.14159265358979f;
+static const float RAY_LENGTH = 1000;

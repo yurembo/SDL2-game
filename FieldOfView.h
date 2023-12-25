@@ -27,7 +27,7 @@ private:
 	FieldOfView(const FieldOfView&);
 	FieldOfView& operator=(const FieldOfView&);
 
-	void ShootTheRay(SDL_Renderer* m_pRenderer);
+	//void ShootTheRay(SDL_Renderer* m_pRenderer);
 
 };
 typedef FieldOfView TheField;
