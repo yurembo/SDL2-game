@@ -95,6 +95,7 @@ void Game::draw()
 	
 	if (m_player) 
 	{
+		std::vector<Vector2D> out_intersectDots;
 		for (std::vector<GameObject*>::size_type i = 0; i < m_gameObjs.size(); ++i)
 		{
 			m_gameObjs[i]->draw(m_pRenderer);			
@@ -104,7 +105,12 @@ void Game::draw()
 				std::cout << "collide";
 				m_player->resolveCollision(*poly);
 			}
-			m_player->ShootRays(m_pRenderer, poly->getVertexX(), poly->getVertexY());
+			m_player->ShootRays(m_pRenderer, poly->getVertexX(), poly->getVertexY(), out_intersectDots);
+		}
+		for (auto iter = out_intersectDots.begin(); iter < out_intersectDots.end(); ++iter)
+		{
+			filledCircleRGBA(m_pRenderer, (int)iter->getX(), (int)iter->getY(), 10, 255, 0, 0, 255);
+			lineRGBA(m_pRenderer, (int)m_player->getPosition().getX(), (int)m_player->getPosition().getY(), (int)iter->getX(), (int)iter->getY(), 255, 0, 0, 255);
 		}
 		if ((m_bonus != nullptr) && (m_player->checkCollisionWithBonus(m_player->getCollider(), m_bonus->getCollider())))
 		{
@@ -118,16 +124,20 @@ void Game::draw()
 	if (m_bonus) {
 		m_bonus->draw(m_pRenderer);
 	}
-
+	showScore(m_pRenderer);
 	stringRGBA(m_pRenderer, TITLE_X, TITLE_Y, "Use arrows, WASD or left stick on a gamepad to move the circle, press Esc to exit.", 255, 255, 255, 255);
+	
+	SDL_RenderPresent(m_pRenderer); // flip to the screen
+}
+
+void Game::showScore(SDL_Renderer* m_pRenderer)
+{
 	if (m_player)
 	{
 		int score = m_player->getScore();
 		std::string s = "Score: " + std::to_string(score);
-		stringRGBA(m_pRenderer, TITLE_X, SCREEN_HEIGHT - TITLE_Y*2, s.c_str(), 255, 255, 255, 255);
+		stringRGBA(m_pRenderer, TITLE_X, SCREEN_HEIGHT - TITLE_Y * 2, s.c_str(), 255, 255, 255, 255);
 	}
-	
-	SDL_RenderPresent(m_pRenderer); // flip to the screen
 }
 
 void Game::clean()

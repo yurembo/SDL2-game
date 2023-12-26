@@ -113,10 +113,15 @@ public:
  		return Vector2D(m_x * num, m_y * num);
  	}
 
- 	static Vector2D norm(const Vector2D& lhs) 
+ 	static Vector2D normVec(const Vector2D& lhs) 
  	{
  		return (lhs*(1.f / (mag(lhs))));
  	}
+
+	static float normFloat(const Vector2D& val) 
+	{ 
+		return val.m_x * val.m_x + val.m_y * val.m_y;
+	}
 
  	static float dot(const Vector2D& lhs, const Vector2D& rhs) 
 	{
@@ -135,6 +140,22 @@ public:
 	Vector2D operator-() const
 	{
 		return Vector2D(-m_x, -m_y);
+	}
+
+	static float getDistance(const Vector2D& a, const Vector2D& b)//The distance between point a and point b
+	{
+		Vector2D c = b - a;
+		return abs(c);
+	}
+
+	static float abs(const Vector2D& v) 
+	{ 
+		return sqrt(normFloat(v)); 
+	}
+
+	static float getDistance2(const Vector2D p1, const Vector2D p2)
+	{
+		return sqrt((p2.m_x - p1.m_x) * (p2.m_x - p1.m_x) + (p2.m_y - p1.m_y) * (p2.m_y - p1.m_y));
 	}
 
 private:
