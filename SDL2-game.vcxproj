@@ -154,7 +154,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Bonus.cpp" />
-    <ClCompile Include="FieldOfView.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="main.cpp" />
@@ -164,7 +163,6 @@
   <ItemGroup>
     <ClInclude Include="Bonus.h" />
     <ClInclude Include="const.h" />
-    <ClInclude Include="FieldOfView.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="InputHandler.h" />

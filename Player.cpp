@@ -155,13 +155,14 @@ bool Player::getMinDistance(std::pair<Vector2D, float> param1, std::pair<Vector2
 	return param1.second < param2.second;
 }
 
-void Player::ShootRays(SDL_Renderer* m_pRenderer, const std::vector<Sint16>& vertexX, const std::vector<Sint16>& vertexY, std::vector<Vector2D>& out_intersectDots)
+void Player::ShootRays(SDL_Renderer* m_pRenderer, const std::vector<GameObject*> gameObjs, std::vector<Vector2D>& out_intersectDots)
 {
 	const float pi2 = static_cast<float>(M_PI) * 2;
-	const int raysCount = 6;
-	
-	//for (float angle = 0; angle < pi2; angle += pi2 / raysCount)
-	for (int angle = 0; angle < 360; angle += 60)
+	const int raysCount = 100;
+	//cycle for Rays
+	for (float angle = 0; angle < pi2; angle += pi2 / raysCount)
+	//for (float angle = 360; angle > 0; angle -= 60)
+	//for (float angle = 0; angle < 360; angle += 60)
 	{
 		float dx = m_pos.getX() + RAY_LENGTH * std::cosf(angle);
 		float dy = m_pos.getY() + RAY_LENGTH * std::sinf(angle);
@@ -170,28 +171,37 @@ void Player::ShootRays(SDL_Renderer* m_pRenderer, const std::vector<Sint16>& ver
 		Vector2D v2 { dx, dy };
 		std::pair<Vector2D, Vector2D> ray { v1, v2 };
 		std::vector<std::pair<Vector2D, float>>vpoints;
-
-		for (std::vector<Sint16>::size_type i = 0; i < vertexX.size(); ++i)
+		//cycle for Polygons
+		for (auto iter = gameObjs.begin(); iter != gameObjs.end(); ++iter)
 		{
-			std::vector<int> segment = getSegment(i, vertexX, vertexY);
-			if (!segment.empty())
+			Polygon* poly = dynamic_cast<Polygon*>(*iter);
+			//cycle for Polygon's sides
+			for (std::vector<Sint16>::size_type i = 0; i < poly->getVertexX().size(); ++i)
 			{
-				Vector2D v3 { float(segment[0]), float(segment[1]) };
-				Vector2D v4 { float(segment[2]), float(segment[3]) };
-				std::pair<Vector2D, Vector2D> seg { v3, v4 };
-				std::pair<Vector2D, float>intersect = getIntersect(ray, seg);
-				Vector2D point = intersect.first;
-				float param2 = intersect.second;
+				std::vector<int> segment = getSegment(i, poly->getVertexX(), poly->getVertexY());
+				if (!segment.empty())
+				{
+					Vector2D v3 { float(segment[0]), float(segment[1]) };
+					Vector2D v4 { float(segment[2]), float(segment[3]) };
+					std::pair<Vector2D, Vector2D> seg { v3, v4 };
+					std::pair<Vector2D, float>intersect = getIntersect(ray, seg);
+					Vector2D point = intersect.first;
+					float param2 = intersect.second;
 				
-  				if (point.getX() == 0 && point.getY() == 0 && param2 == 0) // no intersect
- 				{
-  					continue;
- 				}
+  					if (point.getX() == 0 && point.getY() == 0 && param2 == 0) // no intersect
+ 					{
+  						continue;
+ 					}
 
-				float dist = Vector2D::getDistance(m_pos, point);
-				std::pair<Vector2D, float>p{point, dist};
-				vpoints.push_back(p);
-			}	
+					float dist = Vector2D::getDistance(m_pos, point);
+					if (dist == 0)
+					std::cout << "0";
+					if (m_pos.getX() == 0 && m_pos.getY() == 0)
+					std::cout << "000";
+					std::pair<Vector2D, float>p{point, dist};
+					vpoints.push_back(p);
+				}	
+			}
 		}
 		auto dot = getMinElem(vpoints);
 		if (dot.getX() != 0.f && dot.getY() != 0.f)
@@ -253,6 +263,8 @@ std::pair<Vector2D, float> Player::getIntersect(const std::pair<Vector2D, Vector
  	// Return the POINT OF INTERSECTION
  	float x = r_px + r_dx * T1;
 	float y = r_py + r_dy * T1;
+	if (y < 0)
+		y = 30;
 	v.setX(x);
 	v.setY(y);
 	pair.first = v;

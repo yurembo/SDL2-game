@@ -105,13 +105,9 @@ void Game::draw()
 				std::cout << "collide";
 				m_player->resolveCollision(*poly);
 			}
-			m_player->ShootRays(m_pRenderer, poly->getVertexX(), poly->getVertexY(), out_intersectDots);
 		}
-		for (auto iter = out_intersectDots.begin(); iter < out_intersectDots.end(); ++iter)
-		{
-			filledCircleRGBA(m_pRenderer, (int)iter->getX(), (int)iter->getY(), 10, 255, 0, 0, 255);
-			lineRGBA(m_pRenderer, (int)m_player->getPosition().getX(), (int)m_player->getPosition().getY(), (int)iter->getX(), (int)iter->getY(), 255, 0, 0, 255);
-		}
+		m_player->ShootRays(m_pRenderer, m_gameObjs, out_intersectDots);
+		drawFieldOfView(out_intersectDots);
 		if ((m_bonus != nullptr) && (m_player->checkCollisionWithBonus(m_player->getCollider(), m_bonus->getCollider())))
 		{
 			delete m_bonus;
@@ -138,6 +134,23 @@ void Game::showScore(SDL_Renderer* m_pRenderer)
 		std::string s = "Score: " + std::to_string(score);
 		stringRGBA(m_pRenderer, TITLE_X, SCREEN_HEIGHT - TITLE_Y * 2, s.c_str(), 255, 255, 255, 255);
 	}
+}
+
+void Game::drawFieldOfView(std::vector<Vector2D>& coords)
+{
+	std::vector<Sint16>vectorX;
+	std::vector<Sint16>vectorY;
+
+	for (auto iter = coords.begin(); iter != coords.end(); ++iter)
+	{
+		filledCircleRGBA(m_pRenderer, (int)iter->getX(), (int)iter->getY(), 10, 255, 0, 0, 255);
+		lineRGBA(m_pRenderer, (int)m_player->getPosition().getX(), (int)m_player->getPosition().getY(), (int)iter->getX(), (int)iter->getY(), 255, 0, 0, 255);
+
+		vectorX.push_back((int)iter->getX());
+		vectorY.push_back((int)iter->getY());
+	}
+
+	filledPolygonRGBA(m_pRenderer, vectorX.data(), vectorY.data(), vectorX.size(), 255, 255, 255, 255);
 }
 
 void Game::clean()

@@ -16,5 +16,4 @@ static const std::string GAME_TITLE = "SDL2 Game";
 static const int INC_STEP = 7;
 
 static const int BONUS_RECT_WIDTH = 50;
-static const float RAY_LENGTH = 1.f;
-static const float MAX_DISTANCE = 5000.f;
+static const float RAY_LENGTH = 10.f;

@@ -10,6 +10,7 @@ class Player;
 class GameObject;
 class Vector2D;
 class Bonus;
+class Polygon;
 
 class Game
 {
@@ -28,6 +29,7 @@ public:
 	bool init(const char* title, int xpos, int ypos, int width, int	height, bool fullscreen);
 	void draw();
 	void showScore(SDL_Renderer* m_pRenderer);
+	void drawFieldOfView(std::vector<Vector2D>& coords);
 	void update() {}
 	void handleEvents();
 	void clean();
