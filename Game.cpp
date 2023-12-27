@@ -96,18 +96,20 @@ void Game::draw()
 	if (m_player) 
 	{
 		std::vector<Vector2D> out_intersectDots;
+		m_player->ShootRays(m_pRenderer, m_gameObjs, out_intersectDots);
+		drawFieldOfView(out_intersectDots);
+
 		for (std::vector<GameObject*>::size_type i = 0; i < m_gameObjs.size(); ++i)
 		{
 			m_gameObjs[i]->draw(m_pRenderer);			
 			Polygon* poly = dynamic_cast<Polygon*>(m_gameObjs[i]);
 			if (m_player->checkCollisionWithPolygon(m_pRenderer, poly->getVertexX(), poly->getVertexY()))
 			{
-				std::cout << "collide";
+				//std::cout << "collide";
 				m_player->resolveCollision(*poly);
 			}
 		}
-		m_player->ShootRays(m_pRenderer, m_gameObjs, out_intersectDots);
-		drawFieldOfView(out_intersectDots);
+		
 		if ((m_bonus != nullptr) && (m_player->checkCollisionWithBonus(m_player->getCollider(), m_bonus->getCollider())))
 		{
 			delete m_bonus;
@@ -143,8 +145,8 @@ void Game::drawFieldOfView(std::vector<Vector2D>& coords)
 
 	for (auto iter = coords.begin(); iter != coords.end(); ++iter)
 	{
-		filledCircleRGBA(m_pRenderer, (int)iter->getX(), (int)iter->getY(), 10, 255, 0, 0, 255);
-		lineRGBA(m_pRenderer, (int)m_player->getPosition().getX(), (int)m_player->getPosition().getY(), (int)iter->getX(), (int)iter->getY(), 255, 0, 0, 255);
+		//filledCircleRGBA(m_pRenderer, (int)iter->getX(), (int)iter->getY(), 10, 255, 0, 0, 255);
+		//lineRGBA(m_pRenderer, (int)m_player->getPosition().getX(), (int)m_player->getPosition().getY(), (int)iter->getX(), (int)iter->getY(), 255, 0, 0, 255);
 
 		vectorX.push_back((int)iter->getX());
 		vectorY.push_back((int)iter->getY());

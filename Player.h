@@ -27,7 +27,8 @@ public:
 	bool getMinDistance(std::pair<Vector2D, float> param1, std::pair<Vector2D, float> param2);
 	void ShootRays(SDL_Renderer* m_pRenderer, const std::vector<GameObject*> gameObjs, std::vector<Vector2D>& out_intersectDots);
 	Vector2D getMinElem(const std::vector<std::pair<Vector2D, float>>& vpoints) const;
-	std::pair<Vector2D, float> getIntersect(const std::pair<Vector2D, Vector2D>& ray, const std::pair<Vector2D, Vector2D>& segment);
+	Vector2D getIntersect(const std::pair<Vector2D, Vector2D>& ray, const std::pair<Vector2D, Vector2D>& segment);
+	Vector2D getIntersection(const std::pair<Vector2D, Vector2D>& ray, const std::pair<Vector2D, Vector2D>& segment);
 	bool checkCollisionWithBonus(const SDL_Rect& rect1, const SDL_Rect& rect2);
 
 	void setScore(const int score);

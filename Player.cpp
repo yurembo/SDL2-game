@@ -158,11 +158,9 @@ bool Player::getMinDistance(std::pair<Vector2D, float> param1, std::pair<Vector2
 void Player::ShootRays(SDL_Renderer* m_pRenderer, const std::vector<GameObject*> gameObjs, std::vector<Vector2D>& out_intersectDots)
 {
 	const float pi2 = static_cast<float>(M_PI) * 2;
-	const int raysCount = 100;
+	const int raysCount = 70;
 	//cycle for Rays
-	for (float angle = 0; angle < pi2; angle += pi2 / raysCount)
-	//for (float angle = 360; angle > 0; angle -= 60)
-	//for (float angle = 0; angle < 360; angle += 60)
+	for (float angle = 0.f; angle <= pi2; angle += pi2 / raysCount)
 	{
 		float dx = m_pos.getX() + RAY_LENGTH * std::cosf(angle);
 		float dy = m_pos.getY() + RAY_LENGTH * std::sinf(angle);
@@ -184,20 +182,17 @@ void Player::ShootRays(SDL_Renderer* m_pRenderer, const std::vector<GameObject*>
 					Vector2D v3 { float(segment[0]), float(segment[1]) };
 					Vector2D v4 { float(segment[2]), float(segment[3]) };
 					std::pair<Vector2D, Vector2D> seg { v3, v4 };
-					std::pair<Vector2D, float>intersect = getIntersect(ray, seg);
-					Vector2D point = intersect.first;
-					float param2 = intersect.second;
+
+					Vector2D point;
+ 					//point = getIntersect(ray, seg);
+					point = getIntersection(ray, seg);
 				
-  					if (point.getX() == 0 && point.getY() == 0 && param2 == 0) // no intersect
+  					if (point.getX() == 0.f && point.getY() == 0.f) // no intersect
  					{
   						continue;
  					}
 
-					float dist = Vector2D::getDistance(m_pos, point);
-					if (dist == 0)
-					std::cout << "0";
-					if (m_pos.getX() == 0 && m_pos.getY() == 0)
-					std::cout << "000";
+					float dist = Vector2D::getDistance2(m_pos, point);
 					std::pair<Vector2D, float>p{point, dist};
 					vpoints.push_back(p);
 				}	
@@ -220,10 +215,9 @@ Vector2D Player::getMinElem(const std::vector<std::pair<Vector2D, float>>& vpoin
 	return Vector2D { 0, 0 };
 }
  
-std::pair<Vector2D, float> Player::getIntersect(const std::pair<Vector2D, Vector2D>& ray, const std::pair<Vector2D, Vector2D>& segment)
+Vector2D Player::getIntersect(const std::pair<Vector2D, Vector2D>& ray, const std::pair<Vector2D, Vector2D>& segment)
 {
 	Vector2D v {0,0};
-	std::pair<Vector2D, float> pair { v, 0.f };
 	
  	// RAY in parametric: Point + Delta*T1
 	float r_px = Vector2D(ray.first).getX();
@@ -238,40 +232,87 @@ std::pair<Vector2D, float> Player::getIntersect(const std::pair<Vector2D, Vector
 	float s_dy = Vector2D(segment.second).getY() - s_py;
  
  	// Are they parallel? If so, no intersect
-	float r_mag = sqrt(r_dx * r_dx + r_dy * r_dy);
-	float s_mag = sqrt(s_dx * s_dx + s_dy * s_dy);
-	if (r_dx / r_mag == s_dx / s_mag && r_dy / r_mag == s_dy / s_mag)
+	float r = r_dx * r_dx + r_dy * r_dy;
+	float s = s_dx * s_dx + s_dy * s_dy;
+	if (r > 0 && s > 0)
 	{
-		return pair;
-	}
- 
+		float r_mag = sqrt(r);
+		float s_mag = sqrt(s);
+	
+		if ((r_mag == 0 || s_mag == 0) || (r_dx / r_mag == s_dx / s_mag && r_dy / r_mag == s_dy / s_mag))
+		{
+			return v;
+		}
+	} 
+	else 
+		return v;
  	// SOLVE FOR T1 & T2
-	float T2 = (r_dx * (s_py - r_py) + r_dy * (r_px - s_px)) / (s_dx * r_dy - s_dy * r_dx);
+	float div = (s_dx * r_dy - s_dy * r_dx);
+	if (div == 0)
+	{
+		return v;
+	}
+	float T2 = (r_dx * (s_py - r_py) + r_dy * (r_px - s_px)) / div;
+	if (r_dx == 0)
+	{
+		return v;
+	}
 	float T1 = (s_px + s_dx * T2 - r_px) / r_dx;
+	
  
  	// Must be within parametic whatevers for RAY/SEGMENT
  	if (T1 < 0) 
 	{
-		return pair;
+		return v;
 	}
 
 	if (T2 < 0 || T2 > 1)
 	{
-		return pair;	
+		return v;	
 	}
  
  	// Return the POINT OF INTERSECTION
- 	float x = r_px + r_dx * T1;
-	float y = r_py + r_dy * T1;
-	if (y < 0)
-		y = 30;
+	float val1 = r_px + r_dx * T1;
+	float val2 = r_py + r_dy * T1;
+ 	float x = (val1);
+	float y = (val2);
+	
 	v.setX(x);
 	v.setY(y);
-	pair.first = v;
-	pair.second = T1;
 
-	return pair;
+	return v;
  }
+
+Vector2D Player::getIntersection(const std::pair<Vector2D, Vector2D>& ray, const std::pair<Vector2D, Vector2D>& segment)
+{
+	Vector2D v{ 0,0 };
+	// Store the values for fast access and easy
+	// equations-to-code conversion
+	float x1 = Vector2D(ray.first).getX(), x2 = Vector2D(ray.second).getX(), x3 = Vector2D(segment.first).getX(), x4 = Vector2D(segment.second).getX();
+	float y1 = Vector2D(ray.first).getY(), y2 = Vector2D(ray.second).getY(), y3 = Vector2D(segment.first).getY(), y4 = Vector2D(segment.second).getY();
+
+	float d = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+	// If d is zero, there is no intersection
+	if (d == 0) 
+		return v;
+
+	// Get the x and y
+	float pre = (x1 * y2 - y1 * x2), post = (x3 * y4 - y3 * x4);
+	float x = (pre * (x3 - x4) - (x1 - x2) * post) / d;
+	float y = (pre * (y3 - y4) - (y1 - y2) * post) / d;
+
+	// Check if the x and y coordinates are within both lines
+	if (x < std::min(x1, x2) || x > std::max(x1, x2) ||	x < std::min(x3, x4) || x > std::max(x3, x4)) 
+		return v;
+	if (y < std::min(y1, y2) || y > std::max(y1, y2) ||	y < std::min(y3, y4) || y > std::max(y3, y4)) 
+		return v;
+
+	// Return the point of intersection
+	v.setX(x);
+	v.setY(y);
+
+	return v;
+}
 
 bool Player::checkCollisionWithBonus(const SDL_Rect& rect1, const SDL_Rect& rect2)
 {
