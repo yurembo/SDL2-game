@@ -11,7 +11,6 @@ class GameObject;
 class Vector2D;
 class Bonus;
 class Polygon;
-class Enemy;
 
 class Game
 {
@@ -44,8 +43,6 @@ public:
 
 	void readValueFromFileToChooseControlDevice();//0 - keyboard, 1 - gamepad
 
-	friend bool operator==(const SDL_Rect& left, const SDL_Rect& right);
-
 private:
 	Game();
 	~Game();
@@ -59,15 +56,12 @@ private:
 
 	std::unique_ptr<Player> m_player;
 	std::vector<GameObject*>  m_gameObjs;
-	std::vector<Enemy*> m_Enemys;
 	Bonus* m_bonus;
 
 	//random generator
 	std::mt19937 m_random_engine;
 
 	void LoadPolygonsFromFile(const std::string fileName);
-	SDL_Rect findFreeSpace();
 	void CreateBonus();
-	void CreateEnemies();
 };
 typedef Game TheGame;

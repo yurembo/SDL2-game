@@ -5,7 +5,7 @@
 #include "Game.h"
 #include <algorithm>
 
-Player::Player() : m_vel(0.f,0.f), m_score(0), m_inertia(false), m_GamePad(false)
+Player::Player() : m_vel(0.f,0.f), m_score(0), m_targetPos(0.f,0.f), m_inertia(false), m_GamePad(false)
 {
 	m_pos.setX(SCREEN_WIDTH / 2);
 	m_pos.setY(SCREEN_HEIGHT / 2);
@@ -28,6 +28,9 @@ Player::~Player()
 
 	m_score = 0;
 
+	m_targetPos.setX(0.f);
+	m_targetPos.setY(0.f);
+
 	m_inertia = false;
 	m_GamePad = false;
 }
@@ -49,30 +52,20 @@ void Player::update()
 	moveCollider();
 }
 
-void Player::resolveCollision(Vector2D& vel)
+void Player::resolveCollision(const Polygon& poly)
 {
 	const float divider = 8;
 
-	if (m_vel.getX() == 0 && m_vel.getY() == 0 && (vel.getX() != 0 || vel.getY() != 0))
-	{
-		m_vel = vel*3;
+ 	Vector2D vecDiff = Vector2D::normVec(m_vel);
+ 	float Dist = PLAYER_RADIUS; 
+ 	Dist = sqrt(Dist);
+ 	float ToPush = PLAYER_RADIUS - Dist;
+ 	vecDiff *= ToPush;
+ 	m_pos -= vecDiff;
+	m_targetPos = m_pos - vecDiff;
 
-		m_inertia = true;
-	}
-	else
-		if (m_vel.getX() != 0 || m_vel.getY() != 0)
-		{
-			Vector2D vecDiff = Vector2D::normVec(m_vel);
-			float Dist = PLAYER_RADIUS;
-			Dist = sqrt(Dist);
-			float ToPush = PLAYER_RADIUS - Dist;
-			vecDiff *= ToPush;
-			m_pos -= vecDiff;
-			//
-			m_vel = -m_vel / divider;
-			//
-			m_inertia = true;
-		}
+	m_vel = -m_vel / divider;
+	m_inertia = true;
 }
 
 inline std::string Player::type()
@@ -157,6 +150,11 @@ std::vector<int> Player::getSegment(const unsigned int index, const std::vector<
 	return resVec;
 }
 
+bool Player::getMinDistance(std::pair<Vector2D, float> param1, std::pair<Vector2D, float> param2)
+{
+	return param1.second < param2.second;
+}
+
 void Player::ShootRays(SDL_Renderer* m_pRenderer, const std::vector<GameObject*> gameObjs, std::vector<Vector2D>& out_intersectDots)
 {
 	const float pi2 = static_cast<float>(M_PI) * 2;
@@ -185,7 +183,9 @@ void Player::ShootRays(SDL_Renderer* m_pRenderer, const std::vector<GameObject*>
 					Vector2D v4 { float(segment[2]), float(segment[3]) };
 					std::pair<Vector2D, Vector2D> seg { v3, v4 };
 
-					Vector2D point = getIntersection(ray, seg);
+					Vector2D point;
+ 					//point = getIntersect(ray, seg);
+					point = getIntersection(ray, seg);
 				
   					if (point.getX() == 0.f && point.getY() == 0.f) // no intersect
  					{
@@ -215,6 +215,74 @@ Vector2D Player::getMinElem(const std::vector<std::pair<Vector2D, float>>& vpoin
 	return Vector2D { 0, 0 };
 }
  
+Vector2D Player::getIntersect(const std::pair<Vector2D, Vector2D>& ray, const std::pair<Vector2D, Vector2D>& segment)
+{
+	Vector2D v {0,0};
+	
+ 	// RAY in parametric: Point + Delta*T1
+	float r_px = Vector2D(ray.first).getX();
+	float r_py = Vector2D(ray.first).getY();
+	float r_dx = Vector2D(ray.second).getX() - r_px;
+	float r_dy = Vector2D(ray.second).getY() - r_py;
+ 
+ 	// SEGMENT in parametric: Point + Delta*T2
+	float s_px = Vector2D(segment.first).getX();
+	float s_py = Vector2D(segment.first).getY();
+	float s_dx = Vector2D(segment.second).getX() - s_px;
+	float s_dy = Vector2D(segment.second).getY() - s_py;
+ 
+ 	// Are they parallel? If so, no intersect
+	float r = r_dx * r_dx + r_dy * r_dy;
+	float s = s_dx * s_dx + s_dy * s_dy;
+	if (r > 0 && s > 0)
+	{
+		float r_mag = sqrt(r);
+		float s_mag = sqrt(s);
+	
+		if ((r_mag == 0 || s_mag == 0) || (r_dx / r_mag == s_dx / s_mag && r_dy / r_mag == s_dy / s_mag))
+		{
+			return v;
+		}
+	} 
+	else 
+		return v;
+ 	// SOLVE FOR T1 & T2
+	float div = (s_dx * r_dy - s_dy * r_dx);
+	if (div == 0)
+	{
+		return v;
+	}
+	float T2 = (r_dx * (s_py - r_py) + r_dy * (r_px - s_px)) / div;
+	if (r_dx == 0)
+	{
+		return v;
+	}
+	float T1 = (s_px + s_dx * T2 - r_px) / r_dx;
+	
+ 
+ 	// Must be within parametic whatevers for RAY/SEGMENT
+ 	if (T1 < 0) 
+	{
+		return v;
+	}
+
+	if (T2 < 0 || T2 > 1)
+	{
+		return v;	
+	}
+ 
+ 	// Return the POINT OF INTERSECTION
+	float val1 = r_px + r_dx * T1;
+	float val2 = r_py + r_dy * T1;
+ 	float x = (val1);
+	float y = (val2);
+	
+	v.setX(x);
+	v.setY(y);
+
+	return v;
+ }
+
 Vector2D Player::getIntersection(const std::pair<Vector2D, Vector2D>& ray, const std::pair<Vector2D, Vector2D>& segment)
 {
 	Vector2D v{ 0,0 };
@@ -256,19 +324,9 @@ bool Player::checkCollisionWithBonus(const SDL_Rect& rect1, const SDL_Rect& rect
 	return false;
 }
 
-bool Player::checkCollisionWithEnemy(const SDL_Rect& rect1, const SDL_Rect& rect2)
-{
-	if (SDL_HasIntersection(&rect1, &rect2) == SDL_TRUE)
-	{
-		m_score /= 2;
-		return true;
-	}
-	return false;
-}
-
 void Player::setScore(const int score)
 {
-	m_score = score;
+	m_score += score;
 }
 
 int Player::getScore() const
@@ -301,10 +359,8 @@ void Player::setInertia()
 
 void Player::moveCollider()
 {
-	const int size = 20;
-
-	m_Collider.x = static_cast<int>(m_pos.getX() - size);
-	m_Collider.w = size * 2;
-	m_Collider.y = static_cast<int>(m_pos.getY() - size);
-	m_Collider.h = size * 2;
+	m_Collider.x = static_cast<int>(m_pos.getX() - PLAYER_RADIUS / 2);
+	m_Collider.w = PLAYER_RADIUS;
+	m_Collider.y = static_cast<int>(m_pos.getY() - PLAYER_RADIUS / 2);
+	m_Collider.h = PLAYER_RADIUS;
 }
