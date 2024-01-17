@@ -17,6 +17,3 @@ static const int INC_STEP = 7;
 
 static const int BONUS_RECT_WIDTH = 50;
 static const float RAY_LENGTH = 1000.f;
-
-// three enemies - is this enough?
-static const int ENEMY_COUNT = 1;
