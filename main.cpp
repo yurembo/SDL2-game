@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
 				SDL_Delay((int)(DELAY_TIME - frameTime));
 			}
 		}
-	} else std::cout << "cannot init SDL";
+	} else std::cout << "cannot init SDL" << std::endl;
 
 	TheGame::Instance()->clean();
 

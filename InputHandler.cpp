@@ -36,12 +36,12 @@ void InputHandler::initialiseJoysticks()
 			}
 			else
 			{
-				std::cout << SDL_GetError();
+				std::cout << SDL_GetError() << std::endl;
 			}
 		}
 		SDL_JoystickEventState(SDL_ENABLE);
 		m_bJoysticksInitialised = true;
-		std::cout << "Initialised " << m_joysticks.size() << " joystick(s)\n";
+		std::cout << "Initialised " << m_joysticks.size() << " joystick(s)" << std::endl;
 	}
 	else
 	{

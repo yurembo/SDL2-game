@@ -71,6 +71,22 @@ public:
 		return *this;
 	}
 
+	Vector2D& operator+=(const float scalar)
+	{
+		m_x += scalar;
+		m_y += scalar;
+
+		return *this;
+	}
+
+	Vector2D& operator-=(const float scalar)
+	{
+		m_x -= scalar;
+		m_y -= scalar;
+
+		return *this;
+	}
+
 	Vector2D operator/(const float scalar)
 	{
 		return Vector2D(m_x / scalar, m_y / scalar);
